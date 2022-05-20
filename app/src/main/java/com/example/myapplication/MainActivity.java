@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -28,6 +29,7 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener{
 
     private EditText PersonEmailL, passwordL;
+    private TextView forgotPassword;
     private FirebaseAuth firebaseAuth;
 
 
@@ -100,6 +102,15 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             }
         });
 
+        forgotPassword = (TextView) findViewById(R.id.forgotPassword);
+        forgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ForgotPassword.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     public void showPopup(View v){
@@ -120,6 +131,10 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             case R.id.instructions:
                 Intent intent1 = new Intent(MainActivity.this, InstructionsList.class);
                 startActivity(intent1);
+                return true;
+            case R.id.reviews:
+                Intent intent2 = new Intent(MainActivity.this, ReviewsList.class);
+                startActivity(intent2);
                 return true;
             default:
                 return false;

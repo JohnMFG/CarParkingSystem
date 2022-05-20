@@ -41,8 +41,11 @@ public class CheckoutActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_checkout);
 
+        double sum1 = Double.parseDouble(getIntent().getStringExtra("sum"));
+        sum1 = sum1/100;
+        String sum11 = String.valueOf(sum1);
         sum = (TextView) findViewById(R.id.sumID4);
-        sum.setText(getIntent().getStringExtra("sum"));
+        sum.setText(sum11);
 
 
         payButton = findViewById(R.id.pay_button);

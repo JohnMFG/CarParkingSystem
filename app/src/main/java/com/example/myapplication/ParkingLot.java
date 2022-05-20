@@ -1,9 +1,11 @@
 package com.example.myapplication;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
@@ -48,7 +51,6 @@ public class ParkingLot extends AppCompatActivity implements PopupMenu.OnMenuIte
     private Button duser;
 
     ImageButton refreshh;
-
 
 
     private Button temp; //in refreshF
@@ -94,25 +96,25 @@ public class ParkingLot extends AppCompatActivity implements PopupMenu.OnMenuIte
             }
         });
 
-        duser = (Button) findViewById(R.id.button2);
-        duser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-                user.delete()
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(ParkingLot.this, "Account deleted!", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-                Intent intent = new Intent(ParkingLot.this, MainActivity.class);
-                startActivity(intent);
-            }
-        });
+//        duser = (Button) findViewById(R.id.button2);
+//        duser.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//
+//                user.delete()
+//                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<Void> task) {
+//                                if (task.isSuccessful()) {
+//                                    Toast.makeText(ParkingLot.this, "Account deleted!", Toast.LENGTH_SHORT).show();
+//                                }
+//                            }
+//                        });
+//                Intent intent = new Intent(ParkingLot.this, MainActivity.class);
+//                startActivity(intent);
+//            }
+//        });
 
 
 
@@ -231,6 +233,36 @@ public class ParkingLot extends AppCompatActivity implements PopupMenu.OnMenuIte
             }
         });
 
+        TextView rateUs = (TextView) findViewById(R.id.rateUs);
+        rateUs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
+                if (mFirebaseUser == null) {
+                    Toast.makeText(ParkingLot.this, "To rate, you have to login first!", Toast.LENGTH_SHORT).show();
+                }else{
+                    Intent intent = new Intent(ParkingLot.this, RateApp.class);
+                    startActivity(intent);
+                }
+            }
+        });
+
+        TextView reportIssue = (TextView) findViewById(R.id.reportIssue);
+        reportIssue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
+                if (mFirebaseUser == null) {
+                    Toast.makeText(ParkingLot.this, "To report a bug, you have to login first!", Toast.LENGTH_SHORT).show();
+                }else{
+                    Intent intent = new Intent(ParkingLot.this, BugReport.class);
+                    startActivity(intent);
+                }
+            }
+        });
+
 
 
     }
@@ -341,27 +373,57 @@ public class ParkingLot extends AppCompatActivity implements PopupMenu.OnMenuIte
                     long start = Long.parseLong(tm);
                     long difference = now - start;
                     System.out.println(difference);
+                    long diff = difference;
+                    Integer dii = (int) (long) diff;
+                    difference= difference+ 1000;
                     Integer di = (int) (long) difference;
+
                     //int sum = di/10;
                     //double y = Double.longBitsToDouble(difference);
+                    if(di<1){
+                        di = 1000;
+                    }
                     String sum1 = String.valueOf(di/10);
-
-
 
 
                     if (id.equals(m)) {
 
-                        childRef.child("user").setValue("freeSpace");
-                        childRef.child("date").setValue("0");
-                        temp1.setBackgroundColor(Color.rgb(166, 172, 204));
-                        temp1.setTextColor(Color.WHITE);
+                        //
 
-                        if(di <=5){
+                        if(dii <=5){
+                            childRef.child("user").setValue("freeSpace");
+                            childRef.child("date").setValue("0");
+                            temp1.setBackgroundColor(Color.rgb(166, 172, 204));
+                            temp1.setTextColor(Color.WHITE);
                             Toast.makeText(ParkingLot.this, "Reservation successfully canceled!", Toast.LENGTH_SHORT).show();
                         }else{
-                            Intent intent = new Intent(ParkingLot.this, CheckoutActivity.class);
-                            intent.putExtra("sum", sum1);
-                            startActivity(intent);
+                            AlertDialog.Builder builder = new AlertDialog.Builder(ParkingLot.this);
+                            builder.setTitle(R.string.app_name);
+                            builder.setIcon(R.mipmap.ic_launcher);
+                            builder.setMessage("Do you want to end reservation?")
+                                    .setCancelable(false)
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            childRef.child("user").setValue("freeSpace");
+                                            childRef.child("date").setValue("0");
+                                            temp1.setBackgroundColor(Color.rgb(166, 172, 204));
+                                            temp1.setTextColor(Color.WHITE);
+
+                                            Intent intent = new Intent(ParkingLot.this, CheckoutActivity.class);
+                                            intent.putExtra("sum", sum1);
+                                            startActivity(intent);
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            dialog.cancel();
+                                        }
+                                    });
+                            AlertDialog alert = builder.create();
+                            alert.show();
+
+
+
                         }
 
                     } else if(m.equals("freeSpace")){
@@ -403,6 +465,8 @@ public class ParkingLot extends AppCompatActivity implements PopupMenu.OnMenuIte
             popup.setOnMenuItemClickListener(this);
             popup.inflate(R.menu.popup_menu1);
             popup.show();
+        }else{
+            Toast.makeText(ParkingLot.this, "You have to login first!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -434,21 +498,40 @@ public class ParkingLot extends AppCompatActivity implements PopupMenu.OnMenuIte
                 return true;
 
             case R.id.delete_user:
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-                user.delete()
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(ParkingLot.this, "Account deleted!", Toast.LENGTH_SHORT).show();
-                                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(ParkingLot.this);
+                builder.setTitle(R.string.app_name);
+                builder.setIcon(R.mipmap.ic_launcher);
+                builder.setMessage("Do you want to delete your account?")
+                        .setCancelable(false)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                                user.delete()
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    Toast.makeText(ParkingLot.this, "Account deleted!", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        });
+                                Intent intent3 = new Intent(ParkingLot.this, MainActivity.class);
+                                startActivity(intent3);
+
+
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
                             }
                         });
-                Intent intent3 = new Intent(ParkingLot.this, MainActivity.class);
-                startActivity(intent3);
+                AlertDialog alert = builder.create();
+                alert.show();
                 return true;
-
 
             default:
                 return false;
