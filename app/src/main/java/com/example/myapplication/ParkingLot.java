@@ -533,6 +533,11 @@ public class ParkingLot extends AppCompatActivity implements PopupMenu.OnMenuIte
                 alert.show();
                 return true;
 
+            case R.id.reviews:
+                Intent intent4 = new Intent(ParkingLot.this, ReviewsList.class);
+                startActivity(intent4);
+                return true;
+
             default:
                 return false;
 
